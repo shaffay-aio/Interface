@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import download_file
+from modules.utils import download_file
 
 # Page 4: PaperMenu
 def papermenu_page():
