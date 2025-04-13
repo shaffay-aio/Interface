@@ -20,7 +20,7 @@ def supermenu_page():
             
             # API endpoint to send the data
             api_url = "http://44.231.228.32:8041/supermenu"
-            file_content = download_file(api_url, files, data)
+            file_content = download_file(api_url, files=files, form_data=data)
             
             if file_content:
                 st.download_button("Download Processed File", file_content, "supermenu-filled-aio-format.xlsx")
