@@ -1,9 +1,10 @@
+# TODO: add loading that processing has started
 import streamlit as st
-from modules.utils import download_file
+import requests
 
 # Page 4: PaperMenu
 def papermenu_page():
-    st.title("PaperMenu")
+    st.title("OCR Menu")
     
     # Upload JPEG images
     files = st.file_uploader("Upload JPEG Images", type=["jpeg", "jpg"], accept_multiple_files=True)
@@ -11,13 +12,25 @@ def papermenu_page():
     # Submit button
     if st.button("Submit"):
         if files:
-            file_data = [f.getvalue() for f in files]
-            api_url = "http://yourapiurl.com/papermenu"
-            files = {f"file_{i}": (f"file_{i}.jpg", file_data[i], "image/jpeg") for i in range(len(file_data))}
+            # Prepare files for sending to the API as multipart form data
+            files_dict = []
             
-            file_content = download_file(api_url, files)
+            # Add each uploaded file to the files_dict with the same form field name 'images'
+            for uploaded_file in files:
+                files_dict.append(
+                    ('images', (uploaded_file.name, uploaded_file.getvalue(), f'image/{uploaded_file.type.split("/")[1]}'))
+                )
             
-            if file_content:
-                st.download_button("Download Processed File", file_content, "processed_file.csv")
+            api_url = 'http://44.231.228.32:8042/ocr'
+            
+            # Send the files to the API via a POST request
+            response = requests.post(api_url, files=files_dict)
+            
+            if response.status_code == 200:
+                # Assuming the server returns the processed file in the response
+                file_content = response.content
+                st.download_button("Download Processed File", file_content, "ocr-menu.csv")
+            else:
+                st.error(f"Error: {response.status_code}, {response.text}")
         else:
             st.error("Please upload at least one image.")

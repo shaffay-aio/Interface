@@ -29,7 +29,7 @@ def main():
         export_to_aio_page()
     elif selected_service == "Online to AIO":
         onlinetoaio_page()
-    elif selected_service == "PaperMenu":
+    elif selected_service == "OCR Menu":
         papermenu_page()
 
 if __name__ == "__main__":
