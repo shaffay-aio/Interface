@@ -6,7 +6,7 @@ def supermenu_page():
     st.title("SuperMenu")
     
     # Cuisine selection
-    cuisines = st.multiselect("Select Cuisines", ["American", "Mexican", "Italian", "Indian", "Chinese"])
+    cuisines = st.multiselect("Select Cuisines", ["american", "mexican"])
     
     # File upload section
     file = st.file_uploader("Upload AIO Format XLSX", type=["xlsx"])
@@ -15,13 +15,13 @@ def supermenu_page():
     if st.button("Submit"):
         if file and cuisines:
             files = {"file": file.getvalue()}
-            data = {"cuisines": ",".join(cuisines)}
+            data = {"cuisines": cuisines}
             
             # API endpoint to send the data
-            api_url = "http://yourapiurl.com/supermenu"
+            api_url = "http://44.231.228.32:8041/supermenu"
             file_content = download_file(api_url, files, data)
             
             if file_content:
-                st.download_button("Download Processed File", file_content, "processed_file.xlsx")
+                st.download_button("Download Processed File", file_content, "supermenu-filled-aio-format.xlsx")
         else:
             st.error("Please select cuisines and upload a file.")
