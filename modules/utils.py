@@ -1,7 +1,7 @@
 import requests
 import streamlit as st
 
-def download_file(api_url, files=None, json_data=None, form_data=None):
+def download_file(api_url, files=None, json_data=None, form_data=None, params=None):
     """
     Send request to API endpoint and return the response content.
     
@@ -17,6 +17,9 @@ def download_file(api_url, files=None, json_data=None, form_data=None):
     if json_data:
         # For JSON endpoints like /scraper
         response = requests.post(api_url, json=json_data)
+    elif params:
+        # For json and file uploads        
+        response = requests.post(api_url, files=files, params=params)        
     else:
         # For file upload endpoints like /ocr
         response = requests.post(api_url, files=files, data=form_data)
