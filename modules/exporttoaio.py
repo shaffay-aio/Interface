@@ -1,38 +1,72 @@
 import streamlit as st
 from modules.utils import download_file
 
-# Page 2: ExporttoAIO
+API_ENDPOINTS = {
+    "Toast":   "http://localhost:8043/toast",
+    "Clover":  "http://localhost:8043/clover",
+    "Square":  "http://localhost:8043/square",
+}
+
+TOAST_LABELS = ["Menu", "Menu Group", "Menu Item", "Menu Option Group", "Menu Option", "Item Selection", "Item Modifier Selection"]
+
 def export_to_aio_page():
-    st.title("Export to AIO")
-    
-    # Platform selection
+
+    st.title("Export to AIO")
+
     platform = st.selectbox("Select Platform", ["Toast", "Clover", "Square"])
-    
-    # File upload based on platform
+
+    # ── File‑upload widgets ─────────────────────
     if platform == "Toast":
-        files = [st.file_uploader(f"Upload File {i+1}", type=["xlsx"], key=f"toast_{i+1}") for i in range(7)]
+        toast_files = [
+            st.file_uploader(label, type=["xlsx"], key=f"toast_{i}")
+            for i, label in enumerate(TOAST_LABELS)
+        ]
+        files_to_send = toast_files                              # 7 required files
     else:
-        files = [st.file_uploader(f"Upload File", type=["xlsx"], key="single_file")]
-    
-    # Online enhancement checkbox
-    apply_online_enhancement = st.checkbox("Apply Online Enhancement")
-    online_file = None
-    if apply_online_enhancement:
-        online_file = st.file_uploader("Upload Online Enhancement File", type=["xlsx"])
-    
-    # Submit button
+        export_file = st.file_uploader("Upload Export File", type=["xlsx"], key=f"{platform}_file")
+        files_to_send = [export_file]                            # 1 required file
+
+    # ── Optional Online‑enhancement upload ──────
+    apply_online = st.checkbox("Apply Online Enhancement")
+    online_file  = None
+    if apply_online:
+        online_file = st.file_uploader("Upload Online Middleware File", type=["xlsx"], key="online_file")
+
+    # ── Submit ──────────────────────────────────
     if st.button("Submit"):
-        if any(f is not None for f in files):  # At least one file must be uploaded
-            file_data = [f.getvalue() for f in files if f is not None]
-            api_url = "http://yourapiurl.com/exporttoaio"
-            files = {f"file_{i}": (f"file_{i}.xlsx", file_data[i], "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") for i in range(len(file_data))}
-            data = {"platform": platform, "apply_online_enhancement": apply_online_enhancement}
-            if online_file:
-                files["online_file"] = online_file.getvalue()
-            
-            file_content = download_file(api_url, files, data)
-            
-            if file_content:
-                st.download_button("Download Processed File", file_content, "processed_file.xlsx")
-        else:
-            st.error("Please upload at least one file.")
+        # ---------- Mandatory‑file validation ----------
+        if any(f is None for f in files_to_send):
+            st.error("Please upload all required export files for the selected platform.")
+            return
+        if apply_online and online_file is None:
+            st.error("Online middleware file is required when the enhancement checkbox is ticked.")
+            return
+
+        # ---------- Build multipart‑form payload ----------
+        files = {
+            f"file_{i}": (f.name, f, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            for i, f in enumerate(files_to_send)
+        }
+        if online_file:
+            files["online_file"] = (
+                online_file.name,
+                online_file,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+        data = {
+            "platform": platform,
+            "apply_online_enhancement": apply_online,   # backend flag
+        }
+
+        # ---------- Pick endpoint & call API ----------
+        api_url = API_ENDPOINTS[platform]
+        file_content = download_file(api_url, files, data)
+
+        # ---------- Offer download ----------
+        if file_content:
+            st.download_button(
+                "Download Processed File",
+                file_content,
+                f"{platform.lower()}‑processed.xlsx",
+            )
