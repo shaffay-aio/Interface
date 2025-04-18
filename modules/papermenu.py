@@ -21,10 +21,10 @@ def papermenu_page():
                     ('images', (uploaded_file.name, uploaded_file.getvalue(), f'image/{uploaded_file.type.split("/")[1]}'))
                 )
             
-            api_url = 'http://44.231.228.32:8042/ocr'
-            
             # Send the files to the API via a POST request
-            response = requests.post(api_url, files=files_dict)
+            with st.spinner("Processing your request..."):
+                api_url = 'http://44.231.228.32:8042/ocr'
+                response = requests.post(api_url, files=files_dict)
             
             if response.status_code == 200:
                 # Assuming the server returns the processed file in the response
