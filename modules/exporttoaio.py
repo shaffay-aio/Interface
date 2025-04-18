@@ -2,17 +2,15 @@ import streamlit as st
 from modules.utils import download_file
 
 # API URLs for each platform
+# TODO: any deployment links
 API_ENDPOINTS = {
-    "Toast": "http://localhost:8043/toast",
-    "Clover": "http://localhost:8043/clover",
-    "Square": "http://localhost:8043/square",
+    "Toast" : "http://44.231.228.32:8043/toast",
+    "Clover": "http://44.231.228.32:8043/clover",
+    "Square": "http://44.231.228.32:8043/square",
 }
 
 # Toast file labels (7 files)
-TOAST_LABELS = [
-    "Menu", "Menu Group", "Menu Item", "Menu Option Group", 
-    "Menu Option", "Item Selection", "Item Modifier Selection"
-]
+TOAST_LABELS = [ "menu", "menu_group", "menu_item", "menu_option_group", "menu_option", "item_selection", "item_modifier_selection"]
 
 def export_to_aio_page():
     st.title("Export to AIO")
@@ -24,7 +22,7 @@ def export_to_aio_page():
     if platform == "Toast":
         # Toast has 7 required files
         toast_files = [
-            st.file_uploader(label, type=["xlsx"], key=f"toast_{i}")
+            st.file_uploader(label, type=["csv"], key=f"toast_{i}")
             for i, label in enumerate(TOAST_LABELS)
         ]
         files_to_send = toast_files  # All 7 files are required for Toast
@@ -53,12 +51,15 @@ def export_to_aio_page():
         files = {}
         
         # For Toast, map the 7 files to the correct parameter names (matching backend)
+        # TODO: connect and test toast 
         if platform == "Toast":
+            files = {}
             for i, file in enumerate(files_to_send):
-                files[f"menu_{i}"] = (file.name, file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                files.update({TOAST_LABELS[i] : file.getvalue()})
         
         # For Clover and Square, use a single file for export
         else:
+            # TODO: test square + get clover complete result
             files = {"export_file": files_to_send[0].getvalue()}
 
         # Include online file if uploaded
