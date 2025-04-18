@@ -2,7 +2,7 @@
 
 [server]
 headless = true
-port = 8044
+port = 8045
 enableCORS = true
 
 [theme]
