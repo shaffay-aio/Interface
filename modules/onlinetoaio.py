@@ -26,7 +26,7 @@ def onlinetoaio_page():
     if submit_section1 and not st.session_state.section1_processing:
         if url:
             st.session_state.section1_processing = True
-            with st.spinner("Processing Section 1..."):
+            with st.spinner("Processing Export to Middleware..."):
                 data = {"platform": platform, "input_url": url}
                 api_url = "http://44.231.228.32:8040/scraper"
                 file_content = download_file(api_url, json_data=data)
@@ -36,9 +36,9 @@ def onlinetoaio_page():
                     st.download_button("Download Midleware", file_content, "middleware.xlsx")
                 else:
                     st.session_state.section1_processing = False
-                    st.error("Error processing Section 1. Please try again.")
+                    st.error("Error processing Export to Middleware. Please try again.")
         else:
-            st.error("Please provide URL for Section 1.")
+            st.error("Please provide URL for Export to Middleware.")
 
     ################
     # SECTION - 2  #
@@ -58,7 +58,7 @@ def onlinetoaio_page():
     if submit_section2 and not st.session_state.section2_processing:
         if file:
             st.session_state.section2_processing = True
-            with st.spinner("Processing Section 2..."):
+            with st.spinner("Processing Middleware to AIO..."):
                 files = {"file": file.getvalue()}
                 api_url = "http://44.231.228.32:8040/onlinetoaioformatter"
                 file_content = download_file(api_url, files=files)
@@ -68,9 +68,9 @@ def onlinetoaio_page():
                     st.download_button("Download Processed File Section 2", file_content, "aio-format.xlsx")
                 else:
                     st.session_state.section2_processing = False
-                    st.error("Error processing Section 2. Please try again.")
+                    st.error("Error processing Middleware to AIO. Please try again.")
         else:
-            st.error("Please upload a file for Section 2.")
+            st.error("Please upload a file for Middleware to AIO.")
     
     # Disable other section's button during processing
     if st.session_state.section1_processing:
